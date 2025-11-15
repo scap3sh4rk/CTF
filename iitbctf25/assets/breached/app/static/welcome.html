@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Welcome — Acme Surveys</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --brand: #0f62fe;
+      --muted: #666;
+      --card-bg: #fff;
+      --page-bg: #f6f8fb;
+      --accent: #e0e6f8;
+    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--page-bg);color:#222}
+    header{background:var(--brand);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+    header a.logo{color:#fff;text-decoration:none;font-weight:700}
+    header nav a{color:#fff;text-decoration:none;margin-left:14px;opacity:.95}
+    .wrap{max-width:1100px;margin:26px auto;padding:0 18px}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:20px}
+    .card{background:var(--card-bg);padding:18px;border-radius:10px;box-shadow:0 6px 20px rgba(20,30,60,.06)}
+    .profile h3{margin:0 0 8px 0}
+    .muted{color:var(--muted);font-size:13px}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:var(--brand);color:#fff;text-decoration:none}
+    .small{font-size:13px;color:var(--muted)}
+    .stat{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5fb}
+    .stat:last-child{border-bottom:0}
+    .flag-card{border-left:6px solid #ffd24d;background:linear-gradient(180deg,#fffdf6,#fff)}
+    .secret{word-break:break-all;padding:12px;background:#fff7e6;border-radius:8px;margin-top:10px;font-weight:600}
+    .alert{padding:10px;border-radius:8px;background:#fff3cc;border-left:4px solid #ffd24d}
+    footer{margin-top:28px;text-align:center;color:var(--muted);font-size:13px}
+    @media (max-width:800px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="/">Acme Surveys</a>
+    <nav>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <aside class="card profile">
+        <h3>Profile</h3>
+        <div class="small">Signed in as</div>
+        <div style="margin-top:8px;font-weight:700">{{ email }}</div>
+
+        <div style="margin-top:14px">
+          <div class="small">Quick actions</div>
+          <p style="margin-top:8px">
+            <a class="btn" href="/dashboard">Open dashboard</a>
+          </p>
+          <p class="small" style="margin-top:10px;color:#555">
+            You can safely log out when finished.
+          </p>
+        </div>
+
+        <div style="margin-top:18px" class="small muted">
+          Recent activity
+        </div>
+        <div style="margin-top:8px">
+          <div class="stat"><div>Last login</div><div class="muted">just now</div></div>
+          <div class="stat"><div>Responses contributed</div><div class="muted">3</div></div>
+          <div class="stat"><div>Exports requested</div><div class="muted">0</div></div>
+        </div>
+      </aside>
+
+      <section>
+        <div class="card">
+          <h2>Welcome back</h2>
+          <p class="small">This is your account page. Sensitive items (like admin messages) appear here when applicable.</p>
+
+          {% if flag %}
+            <div style="margin-top:18px" class="card flag-card">
+              <h3 style="margin:0 0 8px 0">Important message</h3>
+              <div class="muted">The account you used contains a protected message.</div>
+              <div class="secret">{{ flag }}</div>
+              <div style="margin-top:10px" class="small muted">Treat this information as sensitive — do not share it.</div>
+            </div>
+          {% else %}
+            <div style="margin-top:18px" class="alert">
+              No special messages for this account. Keep exploring the dashboard for more details.
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      &copy; Acme Surveys — developer sandbox
+    </footer>
+  </main>
+</body>
+</html>

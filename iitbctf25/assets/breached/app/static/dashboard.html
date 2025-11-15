@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Dashboard — Acme Surveys</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:#f6f8fb}
+    header{background:#0f62fe;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+    header nav a{color:#fff;text-decoration:none;margin-left:14px}
+    .container{max-width:1000px;margin:28px auto;padding:20px;background:#fff;border-radius:8px}
+    .note{padding:12px;background:#fff3cc;border-left:4px solid #ffd24d;margin-bottom:16px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Acme Surveys — Admin Dashboard</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/welcome">Profile</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <p class="note">This is a demo dashboard. Use the login page to access your account. The special administrator account contains an important message when logged in.</p>
+
+    <section>
+      <h3>Overview</h3>
+      <ul>
+        <li>Active surveys: 12</li>
+        <li>Responses today: 73</li>
+        <li>Pending exports: 1</li>
+      </ul>
+    </section>
+
+    <section style="margin-top:18px">
+      <h3>Admin tools</h3>
+      <p>If you are an admin you can request exports via the internal storage API. Developers have been warned not to commit secrets.</p>
+    </section>
+  </main>
+</body>
+</html>

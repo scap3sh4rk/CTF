@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Login — Acme Surveys</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:#f6f8fb;display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{width:360px;background:#fff;padding:28px;border-radius:10px;box-shadow:0 8px 28px rgba(20,30,60,.08)}
+    h2{margin:0 0 16px 0}
+    input{width:100%;padding:10px;margin:8px 0;border:1px solid #dfe6f3;border-radius:6px}
+    button{width:100%;padding:10px;margin-top:10px;background:#0f62fe;color:#fff;border:none;border-radius:6px;cursor:pointer}
+    .small{font-size:13px;color:#666;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Sign in</h2>
+{% if error %}
+<div style="background:#ffe5e5;color:#c00;padding:10px;margin-bottom:12px;border-radius:6px;text-align:center;">
+  {{ error }}
+</div>
+{% endif %}
+
+    <!-- form posts to the server endpoint /login -->
+    <form action="/login" method="post" autocomplete="off">
+      <label for="email">Email</label>
+<input id="email" name="email" type="email" placeholder="you@example.com"
+       value="{{ request.form.email or '' }}" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="••••••••" required />
+
+      <button type="submit">Log in</button>
+    </form>
+
+    <div class="small">
+      Demo site — no signup. If you have an account, sign in; otherwise check the leaked export.
+    </div>
+  </div>
+</body>
+</html>
+
+
