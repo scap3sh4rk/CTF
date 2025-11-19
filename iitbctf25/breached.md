@@ -13,13 +13,10 @@ The challenge shipped with:
 
 * A Flask application
 * A Docker environment
-* A `/check_email` endpoint hosted externally (`HaveIBeenChowned`)
-* A large `runtime_db.csv` containing email → MD5(password)
-* Environment secrets (we recovered):
-
-  * `FLAG_SECRET`
-  * `ADMIN_API_KEY`
-* The knowledge that the real flag is only shown when:
+* `.env` containing all the required keys
+  * `FLAG_SECRET` - `3HZ0jv5EuC4WHoJnxGKDxuoD9mCkxHMlJz3MucS6U40k7lLdqDqlF2pmeDRT2W5F`
+  * `ADMIN_API_KEY` - `6208d4e88be3d7a2c6845189a23954420f037a262d13a833b9ace3ef98a35ee0`
+* The real flag is only shown when:
 
 ```
 HMAC_SHA256(FLAG_SECRET, email) == FLAG_TOKEN
@@ -44,21 +41,23 @@ if matched:
 
 This means:
 
-* The correct admin email is the one whose HMAC matches the hidden `FLAG_TOKEN`.
+* The HMAC of the admin email is the hidden `FLAG_TOKEN`.
 * Passwords and roles do **not** matter.
 * To solve: **find the email whose HMAC matches the server’s stored token**.
 
-But since we did **not** have `FLAG_TOKEN`, we needed another leak.
+But since we did **not** have `FLAG_TOKEN`, we needed another leak. - _**The admin email**_
 
 ---
 
 ## Using the External Leak API (`/check_email`)
 
-The challenge provided this special endpoint:
+The challenge provided this special endpoint: 
 
 ```
 https://tlctf2025-hibc.chals.io/check_email?email=<email>
 ```
+<img width="1214" height="274" alt="image" src="https://github.com/user-attachments/assets/9c199a67-3779-4692-8cd2-2b07a0a59c01" />
+
 
 Most emails return:
 
@@ -69,10 +68,25 @@ Most emails return:
   "pwned": false
 }
 ```
+_Maybe the pwned is something refering to havibeenpawned_ => That if its true, then thats the admin email as per the clue from the question.
 
-We brute‑forced **every email in the CSV** and looked for deviations. Any abnormal response signifies the admin.
+There is another endpoint called `download_db` to download the database
+```
+curl -s -H "X-API-Key: 6208d4e88be3d7a2c6845189a23954420f037a262d13a833b9ace3ef98a35ee0" \
+     https://tlctf2025-data-app.chals.io/download_db \
+     -o runtime_db.csv
+```
+The above piece of code lets you download the database. That has the emails
+- The flag user is scrap, thats  not the admin
+
+To find out the admin we have the endpoint that we found out earlier. `/check_email?email=<email>`
+
+
+
+I brute‑forced **every email in the CSV** and looked for deviations. Any abnormal response signifies the admin.
 
 ### Automation Script
+The below script lets us do the automation to find out the admin email - do in localhost
 
 ```python
 import csv, requests
@@ -97,15 +111,13 @@ with open("runtime_db.csv") as f:
 ```
 
 ### Result
-
 ```
 ADMIN FOUND: blake.baker20@acme.test
 {"email": "blake.baker20@acme.test", "plaintext_password": null, "pwned": true}
 ```
-
 This is the **only email with `pwned = true`**, revealing the admin.
 
----
+<img width="1214" height="274" alt="image" src="https://github.com/user-attachments/assets/f5bc8cf6-e182-4f24-8131-5324eeaf99cd" />
 
 ## Computing the Flag via HMAC
 
@@ -135,30 +147,6 @@ print("FLAG: trustctf{" + token[:12] + "}")
 ```
 
 Running this yields the correct CTF flag.
+<img width="1049" height="314" alt="image" src="https://github.com/user-attachments/assets/34625f84-76bf-4dd8-bdcf-5741e1d713ca" />
 
----
-
-## Why This Works
-
-* The admin is chosen strictly through HMAC comparison.
-* Passwords are irrelevant.
-* Roles in `users_meta` are intentionally misleading.
-* The breach API leaks which user is special.
-* Once the admin email is identified, computing the correct flag is trivial.
-
-This challenge blends web exploitation, cryptographic reasoning, and API enumeration.
-
----
-
-## Final Outcome
-
-* **Admin:** `blake.baker20@acme.test`
-* **Flag:** Derived via HMAC using the provided secret
-
-The entire challenge is solvable without cracking hashes or performing SQL injection—just clever enumeration and understanding backend crypto logic.
-
----
-
-## Ready for the Next Challenge
-
-This approach can be adapted to similar HMAC‑based identity or privilege escalations. Whenever you're ready, we can tear into the next CTF task.
+writeup by @scap3sh4rk
