@@ -24,7 +24,7 @@ HMAC_SHA256(FLAG_SECRET, email) == FLAG_TOKEN
 
 The admin role is **not stored**—it is derived cryptographically.
 
----
+
 
 ## Understanding the Backend Logic
 
@@ -47,7 +47,7 @@ This means:
 
 But since we did **not** have `FLAG_TOKEN`, we needed another leak. - _**The admin email**_
 
----
+
 
 ## Using the External Leak API (`/check_email`)
 
